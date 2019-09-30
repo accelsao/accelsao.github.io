@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-TW">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="https://i.imgur.com/aKRHHmA.jpg?v=7.0.1">
+
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.0.1',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false,"dimmer":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="操作系統筆記搭配恐龍舒服用">
+<meta name="keywords" content="Operating System,Process,Thread,Virtual-Memory">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Operating System Concepts Notes">
+<meta property="og:url" content="https://accelsao.github.io/2019/04/20/Operating System Concepts Notes/index.html">
+<meta property="og:site_name" content="Jiburiru&#39;s Blog">
+<meta property="og:description" content="操作系統筆記搭配恐龍舒服用">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://i.imgur.com/3fhqllG.png">
+<meta property="og:image" content="https://i.imgur.com/UtYZ7vA.png">
+<meta property="og:image" content="https://i.imgur.com/Nz1LsK9.png">
+<meta property="og:image" content="https://i.imgur.com/aZtV4to.png">
+<meta property="og:image" content="https://i.imgur.com/hrP9iTi.png">
+<meta property="og:updated_time" content="2019-09-30T08:00:23.690Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Operating System Concepts Notes">
+<meta name="twitter:description" content="操作系統筆記搭配恐龍舒服用">
+<meta name="twitter:image" content="https://i.imgur.com/3fhqllG.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://accelsao.github.io/2019/04/20/Operating System Concepts Notes/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Operating System Concepts Notes | Jiburiru's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-TW">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jiburiru's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">心若沒有棲息的地方，到哪都是流浪</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切換導航欄">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首頁</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>關於</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>標籤</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分類</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>歸檔</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜尋</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜尋..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://accelsao.github.io/2019/04/20/Operating System Concepts Notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiburiru">
+      <meta itemprop="description" content="Just Do It">
+      <meta itemprop="image" content="https://i.imgur.com/r1ouiFo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jiburiru's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Operating System Concepts Notes
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+
+              
+                
+              
+
+              <time title="創建時間：2019-04-20 15:16:05" itemprop="dateCreated datePublished" datetime="2019-04-20T15:16:05+08:00">2019-04-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新於</span>
+                
+                <time title="修改時間：2019-09-30 16:00:23" itemprop="dateModified" datetime="2019-09-30T16:00:23+08:00">2019-09-30</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Learning-Notes/" itemprop="url" rel="index"><span itemprop="name">Learning Notes</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">評論數：</span>
+                <a href="/2019/04/20/Operating System Concepts Notes/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/04/20/Operating System Concepts Notes/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>操作系統筆記<br>搭配恐龍舒服用</p>
+<a id="more"></a>
+
+
+<h1 id="Ch1"><a href="#Ch1" class="headerlink" title="Ch1."></a>Ch1.</h1><p><img src="https://i.imgur.com/3fhqllG.png" alt></p>
+<p>Q1. What is the purpose of interrupt<br>A1. An interrupt can be used to signal the completion of an I/O to obviate the need for device polling<br>Q2. Trap vs Interrupt<br>A2. Interrupt is hardware-generated, Trap is software-generated. Trap can be call by user program, used to call opearating system routines or to catch arithmetic errors.</p>
+<h1 id="Ch2"><a href="#Ch2" class="headerlink" title="Ch2."></a>Ch2.</h1><p>Q1. Long term vs Short term<br>A1.<br>Long-Term Scheduler - selects which processes should be brought into the ready queue, invoked , and controls the degree of multiprogramming.<br>Short-Term Scheduler - selects which processes should be executed next and allocates CPU, invoked frequently.</p>
+<h1 id="Part2-Process-Management"><a href="#Part2-Process-Management" class="headerlink" title="Part2 Process Management"></a>Part2 Process Management</h1><h1 id="Ch3-Process"><a href="#Ch3-Process" class="headerlink" title="Ch3 Process"></a>Ch3 Process</h1><p><img src="https://i.imgur.com/UtYZ7vA.png" alt></p>
+<h2 id="Process-and-Thread"><a href="#Process-and-Thread" class="headerlink" title="Process and Thread"></a>Process and Thread</h2><p><strong>Zombie process</strong><br>當一個子進程結束後, 但他仍然在進程表中. 一般這需要父進程來讀取<code>exit</code>狀態, 要是一直沒有將殭屍進程釋放(reaped), 就會導致資源耗竭<br>所以其實每個 children process 都會變成 zombie process<br><strong>Orphan process</strong><br>這是父進程結束但子進程卻還在跑的進程, 這些會被<code>init</code>(pid=1)收養</p>
+<p><strong>Thread vs Process</strong><br>Threads run in shared memory space, while processes run in seperate memory space</p>
+<h1 id="Ch5-Process-Synchronization"><a href="#Ch5-Process-Synchronization" class="headerlink" title="Ch5. Process Synchronization"></a>Ch5. Process Synchronization</h1><p>Mutex vs. Semaphore 差別?<br><a href="https://stackoverflow.com/questions/62814/difference-between-binary-semaphore-and-mutex" target="_blank" rel="noopener">Difference between binary semaphore and mutex</a><br>看完還是覺得這兩個很像阿 …</p>
+<p>Mutex boolean variables<br>Semaphore interger variables<br>Monitor = mutex + conditional variables</p>
+<p>Peterson’s Solution</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">P0: flag[0] = true;</span><br><span class="line">    turn = 1;</span><br><span class="line">    while (flag[1] == true &amp;&amp; turn == 1)</span><br><span class="line">    &#123;</span><br><span class="line">        // busy wait</span><br><span class="line">    &#125;</span><br><span class="line">    // critical section</span><br><span class="line">    ...</span><br><span class="line">    // end of critical section</span><br><span class="line">    flag[0] = false;</span><br><span class="line">P1: flag[1] = true;</span><br><span class="line">    turn = 0;</span><br><span class="line">    while (flag[0] == true &amp;&amp; turn == 0)</span><br><span class="line">    &#123;</span><br><span class="line">        // busy wait</span><br><span class="line">    &#125;</span><br><span class="line">    // critical section</span><br><span class="line">    ...</span><br><span class="line">    // end of critical section</span><br><span class="line">    flag[1] = false;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Ch6-CPU-Scheduling"><a href="#Ch6-CPU-Scheduling" class="headerlink" title="Ch6 CPU Scheduling"></a>Ch6 CPU Scheduling</h1><p>Dispatch Latency time its takes for the dispatcher to stop a process and start another running</p>
+<h1 id="Ch7-Dead-Lock"><a href="#Ch7-Dead-Lock" class="headerlink" title="Ch7 Dead Lock"></a>Ch7 Dead Lock</h1><p>Dead Lock 4個必須</p>
+<ol>
+<li>Mutual Exclusion</li>
+<li>Hold and wait</li>
+<li>No preemption</li>
+<li>Circular Wait</li>
+</ol>
+<p>解決方法:<br>DeadLock Prevention<br>避免上述4個條件發生<br>(1) 有些資源本身有互斥 無解<br>(2) 讓process(1)拿全部(2)都不拿(3)可以拿部分,但如果要更多就要先丟掉手上的再申請資源<br>(3) 讓他可以搶資源 可惜有些設備不可搶資源<br>(4) 給他們編號 排隊拿資源<br>DeadLock Avoidance<br>Banker ALgorithm<br>系統分成 unsafe和safe<br>unsafe可能發生deadlock的情況<br>safe是保證安全的<br>如果當前系統是safe的就允許拿資源 否則拒絕</p>
+<p><img src="https://i.imgur.com/Nz1LsK9.png" alt></p>
+<h1 id="Part3-Memory-Management"><a href="#Part3-Memory-Management" class="headerlink" title="Part3 Memory Management"></a>Part3 Memory Management</h1><h2 id="Ch8-Main-Memory"><a href="#Ch8-Main-Memory" class="headerlink" title="Ch8 Main Memory"></a>Ch8 Main Memory</h2><p><img src="https://i.imgur.com/aZtV4to.png" alt><br>Address Binding<br>(i)compile time 會產生absolute code, 若起始位置變更則重新compile<br>(ii) load time 如果compile時無法確定位置則生成relocatable code</p>
+<p>Paging vs Segment<br><img src="https://i.imgur.com/hrP9iTi.png" alt></p>
+<p>External Segmentation vs Internal Segmentation<br>External Segmentation: 隨著 process 不斷的移入移出, block的記憶體會被分成許多碎片 因為他們不連續所以無法滿足process的要求</p>
+<p>First fit - 找到第一個可行的 普遍最快<br>Best fit - 需要搜尋所有list 最小可行解 但cost比較高 或者需要DS來處理排序問題 都沒有First bit好<br>Worsr fit - 一樣找全部最大的可行解 都沒有上面兩種好</p>
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>Q1.<br>logical vs physical addresses<br>A1.<br>logical address is generated by CPU and is translated into physical address by MMU<br>physical address is generated by MMU</p>
+<p>Q2.<br>Page Table size 太大 解決方法<br>A2.<br>n-level, hash, inverted</p>
+<h1 id="Ch-9-Virtual-Memory"><a href="#Ch-9-Virtual-Memory" class="headerlink" title="Ch.9 Virtual Memory"></a>Ch.9 Virtual Memory</h1><p>Pros:<br>To keep many processes in memory simultaneously to allow multiprogramming<br>Programs can be larger than physical memory<br>不用考慮memory-storage limitaions<br>shared files easily, shared memory<br>efficient for process creation<br>Cons:</p>
+<p>Thrashing<br>如果 process 沒有足夠的 frame<br>他處理 page fault 的次數會增加<br>cpu效能會劇減</p>
+<p>定義: 花在 paging 時間超過 execution<br>解決方法:</p>
+<ol>
+<li>降低 multiprogramming degree</li>
+<li>Page Fault Frequency</li>
+<li>Working Set Model</li>
+</ol>
+<p>Copy on Write<br>Child process fork() 如果馬上 exec() 這樣複製給child process的address space就很浪費了<br>一開始就給parent和child共用一個pages</p>
+<h2 id="Q-amp-A-1"><a href="#Q-amp-A-1" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><p>Q1. 什麼時候會產生 page faults<br>A1. 當 access page 的時候, 沒辦法在 main memory 找到</p>
+<p>Q2. 題目如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a. for(int i=0;i&lt;100;i++)</span><br><span class="line">	for(int j=0;j&lt;100;j++)</span><br><span class="line">		a[i][j]=0;</span><br><span class="line">b. for(int j=0;j&lt;100;j++)</span><br><span class="line">	for(int i=0;i&lt;100;i++)</span><br><span class="line">		a[i][j]=0;</span><br></pre></td></tr></table></figure>
+
+<p>a[0][0] is at location 200</p>
+<p>A2.<br>a. 一開始是 columns change, size 200 所以 i 跑2個才會發生一次 page fault<br>100 / 2  = 50<br>b. 一開始 row change 所以 row 跑2個 其實就跑過 200 size 得到1次 page fault<br>(100 / 2) * 100(j的部分) = 5000</p>
+<p>Q3.<br>最少所需frame<br>ADD A,B,C Direct<br>ADD (A),(B),(C) Indirect<br>A3.<br>ADD A,B,C = 1(instrucion本身) + (1 + 1 + 1) Direct<br>ADD (A), (B), (C) = 1(instrucion本身) + (2 + 2 + 2) Indirect</p>
+<p>Q4.<br>Given an x86-64 computer system with a 48-bit virtual address, let the<br>system be only byte-addressable. Assume that every page is of 2KB with<br>8 bytes per page entry in the page table. Suppose that the frame number<br>needs 7 bytes to store. Please answer the following questions: (21pts).<br>a. What would be the maximum number of pages owned by a process? What is<br>   the number of frames owned by a process? (6pts)<br>b. Suppose that we have multi-level paging. How many levels do we have in<br>   multi-level paging? (5pts)<br>c. Suppose that TLB is adopted for paging, where the above multi-level<br>   paging is used. Let the memory access time and TLB access time be 100ns<br>   and 10ns, respectively. When the TLB hit ratio is 99%, what is the<br>   effective memory access time? (5pts)<br>d. Suppose that demand paging is adopted. Let p be the probability of a<br>   page fault, and ma be set as 110ns for the memory access time. pft is<br>   the page fault time. When pft is 10ms, what is the probability of a<br>   page fault so that the effective access time will not be over 120ns.<br>   Note that 1ms = 10^(-3)s, 1ns = 10^(-9)s. (5pts)<br>A4.<br>(a)<br>2^48/2^11 = 2^37 pages, 2^37 frames<br>(b)<br>48bit, pagesize = 2KB = 2^11<br>page entry 8 bytes, 2^11/2^3 = 2^8 entries 一個level最多用8個bit<br>2^48/2^11(offest) = 2^37<br>37/8 =4.xx =5<br>8 8 7 7 7 = 37<br>所以5-level<br>(c)<br>EMAT = TLB hit ratio * (TLB hit time + memory access time) + TLB miss ratio * (TLB hit time + memory access time * 2)<br>0.99 * (100+10ns) + 0.01 * (100+0.1<em>2)<br>(d)<br>effective access time = (1 − p) × ma + p × page fault time<br>120 &gt;= (1-p) * 110 + p * 10</em>10^6<br>120 - 110 &gt;= p * (- 110 + 10^7)<br>p &lt;= 10 / (- 110 + 10^7), p = 1 / (10^6 - 11)</p>
+<p>Q5.<br>Given a computer system with a 52-bit virtual address, let the physical<br>address be of 64-bit, and the system is only word-addressable, and every<br>word is of 8 bytes. Assume that evrey page is of 8 KB with 8 bytes per page<br>entry in the page table. Please answer the following questions : (23pts)<br>    a. What would be the maximum number of frames owned by a process? What<br>       is the maximum logical address space for a process in terms of<br>       bytes? (10pts)<br>    b. Suppose that TLB is adopted for paging, and there is only one level<br>       for paging. Let the memory access time and TLB access time be 100ns<br>       and 10ns, respectively. When the TLB hit ratio is 98%, what is the<br>       effective memory access time? (5pts)<br>    c. Suppose that we have multi-level paging. How many levels do we have<br>       in multi-level paging? What is the effective memory access time now<br>       (continued from the above subproblem)? (8pts)<br>A5.<br><code>Each bit in the 32-bit address space represents 1 byte in a byte-addressable system.</code><br>我猜 word-addressable 就是 1-bit 1 word</p>
+<p>(a)<br>a. 2^42 pages ; 2^52 * 2^3 bytes<br>(a) 我覺得題目要求的frame 應該是 2^64<em>2^3 / 2^13 = 2^54, 如果是要求pages 2^52</em>2^3 / 2^13 = 2^42<br>b. EMAT = 2% * 210  + 98% * 110  , unit = ns<br>c. 5 levels; EMAT = 2% * 610 + 98% * 110<br>(c) EMAT= p * (TLB-Access-time + Memory Access time) + (1-p) *[TLB-Access-time +(n+1 *Memory Access time)]</p>
+<h1 id="Ch11-File-System"><a href="#Ch11-File-System" class="headerlink" title="Ch11. File System"></a>Ch11. File System</h1><h1 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h1><ol>
+<li>Starvation<br>一個process wait infinitely without receiving resoure</li>
+<li>Paged Segmentation<br>divide segments into pages</li>
+<li>Absolute Code (Hint : Binding Time)<br>It refers to a program, where the binding times is at the compile time.</li>
+<li>Belady’s Anomaly<br>increase number of page frames results in an increase in the number of page faults<br>FIFO是一個例子</li>
+<li>Implicit Threading<br>Transfer the creation and management of the threading from the app developers to compilers and run-time lib.</li>
+<li>Race Condtion<br>A situation where the outcome of the execution depends on the particular order of process scheduling</li>
+<li>System call<br>OS interface to a running program.<br>An explicitly request to the kernel mode via software interrupt.</li>
+</ol>
+<h1 id="參考"><a href="#參考" class="headerlink" title="參考"></a>參考</h1><p><a href="https://mropengate.blogspot.com/2015/01/operating-system-ch8-memory-management.html" target="_blank" rel="noopener">OS - Ch8 記憶體管理 Memory Management</a><br><a href="https://www.ptt.cc/bbs/NTU-Exam/M.1437210714.A.B8A.html" target="_blank" rel="noopener">[試題] 103下 郭大維 作業系統 期末考+解答</a><br><a href="https://www.csie.ntu.edu.tw/~ktw/uos/uos2005-Chp9.pdf" target="_blank" rel="noopener">Chapter 9 Virtual-Memory Management</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+          
+            <a href="/tags/Process/" rel="tag"># Process</a>
+          
+            <a href="/tags/Thread/" rel="tag"># Thread</a>
+          
+            <a href="/tags/Virtual-Memory/" rel="tag"># Virtual-Memory</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/07/Chain Matrix Multiplication/" rel="next" title="Chain Matrix Multiplication">
+                <i class="fa fa-chevron-left"></i> Chain Matrix Multiplication
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/29/C++ Notes/" rel="prev" title="C++ Notes">
+                C++ Notes <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概要
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://i.imgur.com/r1ouiFo.jpg" alt="Jiburiru">
+            
+              <p class="site-author-name" itemprop="name">Jiburiru</p>
+              <p class="site-description motion-element" itemprop="description">Just Do It</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">135</span>
+                    <span class="site-state-item-name">文章</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">分類</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">164</span>
+                    <span class="site-state-item-name">標籤</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/accelsao" title="GitHub &rarr; https://github.com/accelsao" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                  
+                    
+                  
+                  <a href="https://twitter.com/Jiburiru002" title="Twitter &rarr; https://twitter.com/Jiburiru002" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i></a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://exploredegrees.stanford.edu/schoolofengineering/computerscience/#bachelortext" title="https://exploredegrees.stanford.edu/schoolofengineering/computerscience/#bachelortext" rel="noopener" target="_blank">Stanford  CS</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.youtube.com/watch?v=gAbYAqq9jhc&t=2215s" title="https://www.youtube.com/watch?v=gAbYAqq9jhc&t=2215s" rel="noopener" target="_blank">成功的背後，你看到什麼？</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://coursecatalog.web.cmu.edu/schoolofcomputerscience/undergraduatecomputerscience/" title="http://coursecatalog.web.cmu.edu/schoolofcomputerscience/undergraduatecomputerscience/" rel="noopener" target="_blank">CMU CS CS</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://coursecatalog.web.cmu.edu/schoolofcomputerscience/artificialintelligence/#bsairoadmaptext" title="http://coursecatalog.web.cmu.edu/schoolofcomputerscience/artificialintelligence/#bsairoadmaptext" rel="noopener" target="_blank">CMU CS AI</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://morris821028.github.io/" title="http://morris821028.github.io/" rel="noopener" target="_blank">Morris Blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.opasschang.com/article-list/" title="https://blog.opasschang.com/article-list/" rel="noopener" target="_blank">Opass Blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://coshunie.com/about/" title="http://coshunie.com/about/" rel="noopener" target="_blank">Cö shu Nie / コシュニエ</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://docs.google.com/document/u/0/d/1xqYCb1iGDO-BPK3FoOtAPLn9tQYBiCy7CKx7aLsX84o/pub" title="https://docs.google.com/document/u/0/d/1xqYCb1iGDO-BPK3FoOtAPLn9tQYBiCy7CKx7aLsX84o/pub" rel="noopener" target="_blank">從加州理工到高盛銀行-粟耀瑩</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lilianweng.github.io/lil-log/" title="https://lilianweng.github.io/lil-log/" rel="noopener" target="_blank">LilLog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://optimaltransport.github.io/" title="https://optimaltransport.github.io/" rel="noopener" target="_blank">Computational Optimal Transport</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://ai.googleblog.com/" title="https://ai.googleblog.com/" rel="noopener" target="_blank">Google AI Blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://deepmind.com/blog/" title="https://deepmind.com/blog/" rel="noopener" target="_blank">DeepMind Blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://island.shaform.com/zh/about/" title="https://island.shaform.com/zh/about/" rel="noopener" target="_blank">shaform blog</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch1"><span class="nav-number">1.</span> <span class="nav-text">Ch1.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch2"><span class="nav-number">2.</span> <span class="nav-text">Ch2.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part2-Process-Management"><span class="nav-number">3.</span> <span class="nav-text">Part2 Process Management</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch3-Process"><span class="nav-number">4.</span> <span class="nav-text">Ch3 Process</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Process-and-Thread"><span class="nav-number">4.1.</span> <span class="nav-text">Process and Thread</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch5-Process-Synchronization"><span class="nav-number">5.</span> <span class="nav-text">Ch5. Process Synchronization</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch6-CPU-Scheduling"><span class="nav-number">6.</span> <span class="nav-text">Ch6 CPU Scheduling</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch7-Dead-Lock"><span class="nav-number">7.</span> <span class="nav-text">Ch7 Dead Lock</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part3-Memory-Management"><span class="nav-number">8.</span> <span class="nav-text">Part3 Memory Management</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch8-Main-Memory"><span class="nav-number">8.1.</span> <span class="nav-text">Ch8 Main Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">8.2.</span> <span class="nav-text">Q&amp;A</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch-9-Virtual-Memory"><span class="nav-number">9.</span> <span class="nav-text">Ch.9 Virtual Memory</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Q-amp-A-1"><span class="nav-number">9.1.</span> <span class="nav-text">Q&amp;A</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch11-File-System"><span class="nav-number">10.</span> <span class="nav-text">Ch11. File System</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#名詞解釋"><span class="nav-number">11.</span> <span class="nav-text">名詞解釋</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#參考"><span class="nav-number">12.</span> <span class="nav-text">參考</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiburiru</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 強力驅動 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.0.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.1"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.1"></script>
+
+
+  
+  
+  
+  <script id="dsq-count-scr" src="https://accel.disqus.com/count.js" async></script>
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://accelsao.github.io/2019/04/20/Operating System Concepts Notes/";
+    this.page.identifier = "2019/04/20/Operating System Concepts Notes/";
+    this.page.title = 'Operating System Concepts Notes';
+    };
+  function loadComments() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://accel.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', '' + +new Date());
+    (d.head || d.body).appendChild(s);
+  }
+  
+    loadComments();
+  
+</script>
+
+
+
+
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
