@@ -104,11 +104,84 @@ Raft 如何避免 split vote?
 可能舊 Leader 沒收到選舉的 message
 可能他只收到少數人的 不過也因此他不會 commit 或 execute 任何指令 但是他的 log 會被更新 所以長得和新 Leader 會不同
 
+# Raft Log
+當 Leader 產生後
+1. Client 只能和 Leader 溝通
+2. Client 見不到 Followers 的 logs
+當 Leader 換人後
+1. 怎麼處理不同的 replicas
+2. 怎麼處理漏掉的指令
+3. 怎麼處理重複的指令
+
+我們需要確保哪些事情?
+如果 server 在某個 log entry 執行了某個指令, 那就要確保這個 log entry 不會執行其他的指令
+Why?
+如果 server 否決了指令 結果 Leader 換了一個  對 Client 來說他說見到的情況可能就會不同 那麼就違反了 Single Server 的目標
+舉個例子
+S1: put(k1,v1), put(k1,v2)
+S2: put(k1,v1), put(k2,x)
+第二個操作這兩個 Server 都不能執行
+
+log 是怎麼產生分歧的?
+在 leader 送給其他人 AppendEntries 之前就發生 crash
+S1: 3
+S2: 3, 3
+S3: 3, 3
+> S1 還沒收到第 2nd log entry 的消息
+
+最壞的情況甚至同個 log entry 有不同的值
+S1: 3
+S2: 3, 3, 4
+S3: 3, 3, 5
+
+Raft 的 Follower 會採用新的 Leader 的 log, 用來保證 log enrty 的一致性
+
+這是 AppendEntries 的規則 (論文 Figure2)
+![](https://i.imgur.com/kp49L2u.png)
 
 
+|log entry|10|11|12|13|
+|---|---|---|---|---|
+|S1   |3   |    |    |   |
+|S2   |3   |3   |4   |   |
+|S3   |3   |3   |5   |   |
 
+
+1. S3 成為 Leader, Term = 6
+2. S3 傳送 AppendEntries ,log enrty 13, prevLogIndex=12, prevLogTerm=5
+3. S2 根據 Rule2 他 log entry 的 term 是 4 不是 5 所以會回傳 False
+4. S3 傳送 AppendEntries **這次會將上個發生衝突的 log entry 一起傳送**, log enrty 12+13, prevLogIndex=11, prevLogTerm=3
+5. S2 根據 Rule3 因為他們的 log enrty 11 都有 term = 3 所以 S2 會把 log enrty 12+13 丟棄然後覆蓋成 S3 的 log entry 12+13
+
+這種處理方式可以讓 log 和 Leader 不同的 Follower 得到正確的 log
+
+不過要注意到我們只能把**尚未提交**的 log 給覆蓋掉 否則就會出事 --- 已經告訴 Client 的指令卻不作數
+
+為什麼不把有**最長** log 的 server 當作 Leader?
+
+|log entry|10|11|12|
+|---|---|---|---|---|
+|S1   |5   |6	|  7|
+|S2   |5   |8   |   |
+|S3   |5   |8   |   |
+
+首先 這個情況可能嗎? 
+首先 S1 在 term 6 的時候 當機後重啟 在 term 7 的時候 又當機 兩次都只有處理到自己的 logs
+在 S1 重啟之前 S2 當了 Leader 並且 term = 8 因為 S2 or S3 至少有一個在 S1 拜票的時候就知道 term 是 7, 所以接下來從 8 開始
+S1 都還沒重啟 只有 S2 和 S3 都得到 term 8 的 log, 然後都當機
+假設現在 3 個 server 都重啟 那換誰當 Leader?
+S1 有最長的 Log 問題是 term 8 可以已經**提交**了 我們只能讓 S2 or S3 當 leader,  所以用 log 長度來決定 Leader 會出事
+
+5.4.1 Election restriction 提到了選舉的限制
+投票對象只能是 "as least as up to date", 候選人的最後一個 log entry 有最新的 term, 或者 候選人最後的 term 一樣且 log 長度至少等長
+所以 S2, S3 不會投給 S1, 只會互相給對方, S1 的 6 和 7 因為也不是**多數** 所以也不可能提交給 Client, 所以丟棄後也不會造成問題
+"as least as up to date" 的規則確保 Leader 有所有提交過的 log, 所以不會把提交過的 log 給丟棄
+
+# Figure 7
+![](https://i.imgur.com/Rff7e8S.png)
 
 # FAQ
+
 
 
 # Reference
