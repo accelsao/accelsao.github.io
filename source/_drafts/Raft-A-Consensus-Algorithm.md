@@ -177,10 +177,52 @@ S1 有最長的 Log 問題是 term 8 可以已經**提交**了 我們只能讓 S
 所以 S2, S3 不會投給 S1, 只會互相給對方, S1 的 6 和 7 因為也不是**多數** 所以也不可能提交給 Client, 所以丟棄後也不會造成問題
 "as least as up to date" 的規則確保 Leader 有所有提交過的 log, 所以不會把提交過的 log 給丟棄
 
-# Figure 7
+例如圖7 很多不同的 log entry 都可能出現 但 Leader 會用上述的方法讓其他人的 log 長得跟自己一樣 至於 log 到底會長怎樣就要根據誰當 Leader 而有所不同了
 ![](https://i.imgur.com/Rff7e8S.png)
 
+# Persistence
+當 server 當機後 我們期望他能夠做什麼?
+1. 被全新的 server 替代 而且將整個 log copy 過去, 當然超慢 但萬一當機很頻繁的話 就必須有這個功能
+2. 重啟系統 追上最新的狀態
+
+當系統當機後重啟 Raft 需要記得什麼?
+1. log
+2. currentTerm
+3. votedFor
+
+我們要將這些值儲存到 non-volatile, disk,SSD,battery-backed RAM, &c
+
+* why log?
+如果 server 屬於多數決的其中一個 那我們需要記得已經提交的 log
+* why votedFor?
+避免投了一個 結果當機重啟 又投給另一個人
+* why currentTerm?
+確保 term 只會增長 且一個 term 最多一個 Leader
+
+
+# Log Compaction & Snapshot
+
+問題: log 可能超大 直接傳給重啟的系統的話會卡在這裡
+
+其實我們也不需要整個 log 都搬過來 過程不重要 只要保留最後的結果 將狀態上傳即可
+
+那 log 需要保留哪些?
+
+1. 未執行的 log, (還沒更改狀態)
+2. 未提交的 log, (可能屬於多數)
+
+這時候我們可以定期 **snapshot** 當前的資訊, 比如當 log 增長到一定程度
+
+1. 複製 service 的狀態 比如 k/v table
+2. service 把 snapshot 寫到硬碟 其中包含 Raft 最後 log 的位置 (last included index) 
+3. service 告訴 Raft 把 last included index 之前的 log 丟棄
+
+重啟後 service 讀取 k/v table
+Raft 讀取儲存的 log 同時 Raft 會把 lastApplied 設為 last included index, 避免二次上傳
+
+
 # FAQ
+
 
 
 
